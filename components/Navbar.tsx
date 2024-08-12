@@ -7,7 +7,7 @@ const Navbar = () => {
   return (
     <div className='flex m-5 max-sm:mt-9 mx-8 items-center justify-between max-sm:flex-col'>
       <Logo/>
-      <div className='flex items-center justify-between gap-4'>
+      <div className='flex items-center justify-between gap-4 '>
       <ModeToggle/>
       <AuthBtns/>
       </div>

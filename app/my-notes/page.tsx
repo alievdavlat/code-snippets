@@ -1,12 +1,16 @@
-import { UserButton } from '@clerk/nextjs'
+"use client"
+import Notes from '@/components/Notes'
+import Tags from '@/components/Tags'
 import React from 'react'
 
 const MyNotes = () => {
-  return (
-    <div>
-      <UserButton/>
-    </div>
-  )
+
+ return (
+  <div className='mt-6'>
+    <Tags/>
+    <Notes/>
+  </div>
+ )
 }
 
 export default MyNotes
