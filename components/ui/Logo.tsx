@@ -8,7 +8,7 @@ const Logo = () => {
           <DataObject sx={{fontSize:27, color:'white'}}/>
         </div>
 
-        <div className="flex gap-1 text-[19px]">
+        <div className="flex gap-1 text-[19px] max-sm:hidden">
           <span className={`font-bold text-primary`}>
             Snippet
           </span>

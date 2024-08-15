@@ -1,0 +1,24 @@
+keremas componentlani ochirsh
+
+keremas packagelani ochirish 
+
+componenlaga ajratish 
+
+back yasash 
+
+trash va favorites yasash agar pustoy bosa empty like va  trashga otqzish function va delete modal bilan delte qlish 
+
+all razdelda snippet bomasa add component chqarish add component file icon yozuv va btn boladi  ike va trash razdeldayam iconola blan boladi 
+
+languagelani alohida get qladgan api name va coun bilan 
+
+
+tag tablarni bosganda agar unaqa tagda data bomasa empty compnent bolshi kere 
+
+yozuvi it looks like there are no  snippets  with these tags
+
+
+loading qoyish data fetchda
+
+mobile menu yasash
+

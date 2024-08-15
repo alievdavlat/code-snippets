@@ -91,7 +91,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="flex flex-col w-[15%]  rounded-r-3xl overflow-hidden bg-secondary border  h-screen max-md:hidden">
+    <div className="flex flex-col w-[15%]  rounded-r-3xl overflow-hidden bg-secondary border  h-[vh] max-md:hidden">
       <div className="flex items-center justify-center p-4 mb-20">
         <Logo />
       </div>

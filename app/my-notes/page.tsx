@@ -1,14 +1,24 @@
 "use client"
-import Notes from '@/components/Notes'
+import ContentNote from '../../components/note/ContentNote'
+import Notes from '../../components/note/Notes'
 import Tags from '@/components/Tags'
 import React from 'react'
 
 const MyNotes = () => {
+  
+
 
  return (
   <div className='mt-6'>
+    
+    <div className='flex gap-2'>
+    <div className={`w-full`}>
     <Tags/>
-    <Notes/>
+    <Notes />
+    </div>
+    
+    <ContentNote  />
+    </div>
   </div>
  )
 }

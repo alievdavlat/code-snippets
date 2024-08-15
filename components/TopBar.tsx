@@ -1,17 +1,21 @@
 "use client";
 import { UserButton, useUser } from "@clerk/nextjs";
-import React from "react";
+import React, { useContext } from "react";
 import { IoMdSearch } from "react-icons/io";
 import { GoPlus } from "react-icons/go";
 import { ModeToggle } from "./ui/mode-btn";
 import { IoMdMenu, IoMdClose } from "react-icons/io";
 import { Button } from "./ui/button";
+import { ModalContext } from "@/context/ModalContext";
 
 const TopBar = () => {
   const { user } = useUser();
   const [openSidebar, setopenSidebar] = React.useState(false);
+  const {toggle} = useContext<any>(ModalContext)
+
 
   return (
+    <>
     <div className="rounded-lg flex justify-between items-center border bg-secondary p-4 z-10">
       {/* searchbar */}
 
@@ -25,7 +29,7 @@ const TopBar = () => {
           className="w-[70%] outline-none text-sm  dark:text-slate-200 text-slate-400 bg-transparent"
         />
 
-        <div className="absolute flex gap-2 px-3 rounded-3xl bg-primary p-1 text-[13px] text-white top-[5px] right-[6px] items-center cursor-pointer select-none">
+        <div onClick={toggle} className="absolute flex gap-2 px-3 rounded-3xl bg-primary p-1 text-[13px] text-white top-[5px] right-[6px] items-center cursor-pointer select-none">
           <div className="font-bold">
             <GoPlus size={"1.2rem"} />
           </div>
@@ -71,6 +75,7 @@ const TopBar = () => {
         </Button>
       </div>
     </div>
+    </>
   );
 };
 
