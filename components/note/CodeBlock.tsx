@@ -18,7 +18,7 @@ const CodeBlocks: React.FC<codeblocksProps> = ({ language, code }) => {
   const { theme } = useTheme();
 
   return (
-    <div className="rounded-md overflow-hidden text-sm mt-2">
+    <div className="rounded-md overflow-auto text-sm mt-2 h-[300px] w-full">
       <SyntaxHighlighter
         language={language.toLowerCase()}
         style={theme === "light" ? materialLight : oneDark}>

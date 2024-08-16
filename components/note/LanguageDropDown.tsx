@@ -1,5 +1,5 @@
 "use client";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, {  useState } from "react";
 
 import {
   SiPython,
@@ -49,6 +49,7 @@ import {
 } from "react-icons/si";
 
 import { Control, Controller } from "react-hook-form";
+import useQueryParams from "@/hooks/useQueryParams";
 
 
 
@@ -287,7 +288,7 @@ interface LanguageDropDownProps {
 const LanguageDropDown = ({ control, name, placeholder }: LanguageDropDownProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-
+  const query = useQueryParams()
   const filteredLanguages = programmingLanguages.filter((lang) =>
     lang.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -306,7 +307,7 @@ const LanguageDropDown = ({ control, name, placeholder }: LanguageDropDownProps)
               type="text"
               className="w-full p-2 bg-transparent border-none outline-none dark:text-white text-slate-400"
               placeholder={placeholder}
-              value={searchTerm}
+              value={query.has('id') ? field.value : searchTerm}
               onChange={(e) => {
                 field.onChange(e.target.value)
                 setSearchTerm(e.target.value)

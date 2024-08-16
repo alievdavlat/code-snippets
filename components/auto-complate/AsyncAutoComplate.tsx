@@ -56,7 +56,8 @@ function AsyncAutocomplete(props: IProps) {
   return (
     <GetContainer url={props.url}   params={{ search: search, page: 1, perPage: 10000, ...props.params }} hideLoading>
       {({ data, isLoading, isFetching }) => {
-        
+          console.log(data);
+          
         return (
           <Controller
             control={props.control}

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useContext } from "react";
 import { ModalContext } from "@/context/ModalContext";
 import useQueryParams from "@/hooks/useQueryParams";
@@ -50,11 +50,14 @@ import {
 } from "react-icons/si";
 
 import { DeleteRounded } from "@mui/icons-material";
-import { CardBody, CardContainer, CardItem } from "../ui/3d-card";
 import { EditOutlined, FavoriteBorderOutlined } from "@mui/icons-material";
 
 import CodeBlocks from "./CodeBlock";
 import moment from "moment";
+import { useMutation } from "@tanstack/react-query";
+import { hanldeRequest } from "@/configs/req";
+import { toast } from "sonner";
+import { HeartFilledIcon } from "@radix-ui/react-icons";
 
 interface tagProps {
   id: string;
@@ -76,6 +79,8 @@ interface NoteItemProps {
   isTrash: boolean;
   createdAt: string;
   updatedAt: string;
+  onclick?:(id: any) => void
+  refetch:() => void
 }
 
 const programmingLanguages = [
@@ -317,43 +322,79 @@ const NoteItem = ({
   id,
   title,
   updatedAt,
+  onclick,
+  refetch
 }: NoteItemProps) => {
   const { toggle, isOpen } = useContext<any>(ModalContext);
   const query = useQueryParams();
-
+  const [isLiked, setIsLiked] = React.useState(false);
   const handleOpen = (id: any) => {
     query.set("id", id);
     toggle();
   };
 
-  console.log(code);
-  
+  const createInfo = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await hanldeRequest({
+        url: `/snippets/${id}`,
+        data: data,
+        method: "PUT",
+      });
+
+      return response?.data;
+    },
+    onSuccess(data) {
+      toast.success("Updated");
+    },
+    onError(error: any) {
+      toast.error(String(error || error?.message));
+    },
+  });
+
+  const { mutate } = createInfo;
+
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+
+    mutate({
+      isFavorite: isLiked,
+    });
+    refetch()
+  };
+
   return (
     <div className="z-10 cursor-pointer">
-      <CardContainer className="inter-var">
-        <CardBody
+        <div
           className={`dark:bg-slate-800 bg-secondary border border-slate-400 dark:text-white text-slate-500 max-sm:w-full  rounded-md py-4 ${
             isOpen ? "w-full" : "w-[380px]"
           }`}>
           {/* header */}
-          <CardItem
-            as={"div"}
-            translateZ="50"
+          <div
             className="flex justify-between items-center mx-4 gap-2">
-            <CardItem
-              as="span"
-              translateZ="20"
-              className="font-bold text-lg">
+            <span 
+             className="font-bold text-lg">
               {title}
-            </CardItem>
-            <FavoriteBorderOutlined className="text-slate-500 cursor-pointer z-10" />
-          </CardItem>
+            </span>
+            {isFavorite ? (
+              <HeartFilledIcon
+                onClick={handleLike}
+                fontSize={'2.5rem'}
+                className="text-red-500 cursor-pointer z-10 h-[25px] w-[25px]"
+              />
+            ) : (
+              <FavoriteBorderOutlined
+                onClick={handleLike}
+                className="text-slate-500 cursor-pointer z-10"
+              />
+            )}
+          </div>
 
           {/* Date */}
           <div className="text-slate-500 text-[16px] flex gap-1 mt-1 font-light mx-4">
-            <CardItem as={"span"} translateZ={20}>
+            <span 
+             >
               {moment(createdAt).format("lll")}
-            </CardItem>
+            </span>
           </div>
 
           {/* tags */}
@@ -368,12 +409,11 @@ const NoteItem = ({
           </div>
 
           {/* code  */}
-          <CardItem
-            translateZ="100"
+          <div
             className="w-full"
             onClick={() => handleOpen(id)}>
             <CodeBlocks language={language || "Javascript"} code={code || ""} />
-          </CardItem>
+          </div>
           {/* descr  */}
           <div className="dark:text-slate-300 text-slate-600 text-[13px] mt-4 mx-4">
             {description}
@@ -396,11 +436,10 @@ const NoteItem = ({
                 className="cursor-pointer"
                 onClick={() => handleOpen(id)}
               />
-              <DeleteRounded sx={{ fontSize: 17 }} className="cursor-pointer" />
+              <DeleteRounded sx={{ fontSize: 17 }} className="cursor-pointer" onClick={() => onclick ?  onclick(id) : {}}/>
             </div>
           </div>
-        </CardBody>
-      </CardContainer>
+        </div>
     </div>
   );
 };

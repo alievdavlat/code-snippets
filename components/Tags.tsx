@@ -12,6 +12,9 @@ import {
 import TagWindow from "./TagWindow";
 import { GlobalFilter } from "@/context/TableFilterContext";
 import GetContainer from "./get-container";
+import Loader from "./loader";
+import ErrorData from "./ErrorData";
+import NoData from "./NoData";
 
 interface tagProps {
   id: string;
@@ -26,83 +29,45 @@ const Tags = () => {
   const { handleTags } = useContext(GlobalFilter);
   const { setOpen: setCLose } = useModal();
 
-  const tags = [
-    {
-      id: 1,
-      title: "Javascript",
-      value: "product",
-    },
-    {
-      id: 2,
-      title: "Python",
-      value: "services",
-    },
-    {
-      id: 3,
-      title: "C++",
-      value: "playground",
-    },
-    {
-      id: 4,
-      title: "React",
-      value: "content",
-    },
-    {
-      id: 5,
-      title: "Vue",
-      value: "random",
-    },
-    {
-      id: 6,
-      title: "Vue",
-      value: "random",
-    },
-    {
-      id: 7,
-      title: "Vue",
-      value: "random",
-    },
-    {
-      id: 8,
-      title: "Vue",
-      value: "random",
-    },
-    {
-      id: 9,
-      title: "Vue",
-      value: "random",
-    },
-  ];
-
   return (
     <div className="dark:bg-slate-800 dark:text-white bg-secondary text-slate-500 p-3 rounded-lg flex gap-5 justify-between ">
-        <GetContainer url={"/tags"} hideLoading>
-          {({ data, isError, isLoading, isFetching }) => {
-            return (
-              <div className="overflow-x-auto flex items-center w-[90%]">
-                {data?.data <= 0 && (
-                  <h2 className="text-slate-500 text-sm font-bold">No Tags</h2>
-                )}
-                {data?.data?.length > 0 &&
-                  data?.data.map((item: tagProps, index: number) => (
-                    <div
-                      key={item.id}
-                      onClick={(e: any) => {
-                        setActive(index);
-                        handleTags(item.name);
-                      }}
-                      className={` z-10 transition-all ease-out duration-150 rounded-md  tags  hover:bg-primary hover:text-white ${
-                        index === active
-                          ? "bg-primary text-white"
-                          : "bg-transparent text-slate-400"
-                      }`}>
-                      {item.name}
-                    </div>
-                  ))}
-          </div>
-            );
-          }}
-        </GetContainer>
+      <GetContainer url={"/tags"} hideLoading>
+        {({ data, isError, isLoading }) => {
+          if (isLoading) {
+            return <Loader />;
+          }
+
+          if (isError) {
+            return <ErrorData />;
+          }
+
+          if (data?.data?.length <= 0) {
+            return <NoData />;
+          }
+
+          return (
+            <div className="overflow-x-auto flex items-center w-[90%]">
+                
+              {data?.data?.length > 0 &&
+                data?.data.map((item: tagProps, index: number) => (
+                  <div
+                    key={item.id}
+                    onClick={(e: any) => {
+                      setActive(index);
+                      handleTags(item.name);
+                    }}
+                    className={` z-10 transition-all ease-out duration-150 rounded-md  tags  hover:bg-primary hover:text-white ${
+                      index === active
+                        ? "bg-primary text-white"
+                        : "bg-transparent text-slate-400"
+                    }`}>
+                    {item.name}
+                  </div>
+                ))}
+            </div>
+          );
+        }}
+      </GetContainer>
 
       <Modal>
         <ModalTrigger className="bg-primary  text-white flex justify-center group/modal-btn z-50">

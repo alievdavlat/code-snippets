@@ -2,7 +2,6 @@
 import React from "react";
 import {
   AddOutlined,
-  CloseOutlined,
   DeleteRounded,
   DragIndicatorOutlined,
   EditOutlined,
@@ -16,7 +15,6 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
 import { Button } from "./ui/button";
 import {
@@ -25,39 +23,29 @@ import {
   ModalContent,
   ModalFooter,
   ModalTrigger,
-  useModal
+  useModal,
 } from "./ui/animated-modal";
 import ControllerInput from "./controlled/ControllerInput";
 import Form from "./form";
 import * as yup from "yup";
 import { useUser } from "@clerk/nextjs";
+import GetContainer from "./get-container";
+import ErrorData from "./ErrorData";
+import Loader from "./loader";
+import NoData from "./NoData";
+
+interface tagProps {
+  id: string;
+  name: string;
+  clerkUserId: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 const validationSchema = yup.object().shape<any>({
   name: yup.string().required("Toldirilishi Shart Bolgan Maydon"),
 });
 
-const tags = [
-  {
-    id: 1,
-    title: "Javascript",
-  },
-  {
-    id: 2,
-    title: "Python",
-  },
-  {
-    id: 3,
-    title: "C++",
-  },
-  {
-    id: 4,
-    title: "React",
-  },
-  {
-    id: 5,
-    title: "Vue",
-  },
-];
 
 const TagWindow = () => {
   const { user } = useUser();
@@ -66,7 +54,7 @@ const TagWindow = () => {
     clerkUserId: user?.id,
   };
 
-  const {setOpen} = useModal()
+  const { setOpen } = useModal();
 
   return (
     <Form
@@ -112,10 +100,8 @@ const TagWindow = () => {
                     <button
                       className="z-10 px-3 py-1 bg-gray-200 text-black dark:bg-secondary  dark:text-white   rounded-md text-sm w-28"
                       onClick={handleSubmit(async (data: any) => {
-                        console.log(data);
-                        
                         await handleFinish(data);
-                        setOpen(false)
+                        setOpen(false);
                       })}>
                       Save
                     </button>
@@ -132,11 +118,32 @@ const TagWindow = () => {
               <CommandList>
                 <CommandEmpty>No results found.</CommandEmpty>
                 <CommandGroup heading="Suggestions">
-                  {tags.map((tag) => (
-                    <CommandItem key={tag.id}>
-                      <SingleTag title={tag.title} id={tag.id} />
-                    </CommandItem>
-                  ))}
+                  <GetContainer url={"/tags"} hideLoading>
+                    {({ data, isError, isLoading, isFetching }) => {
+                           if (isLoading) {
+                            return <Loader />;
+                          }
+                
+                          if (isError) {
+                            return <ErrorData />;
+                          }
+                
+                          if (data?.data?.length <= 0) {
+                            return <NoData />;
+                          }
+
+                      return (
+                        <div className="overflow-x-auto flex items-center flex-wrap w-[90%]">
+                          {data?.data?.length > 0 &&
+                            data?.data.map((item: tagProps, index: number) => (
+                              <CommandItem key={item.id}>
+                                <SingleTag title={item.name} id={item.id} />
+                              </CommandItem>
+                            ))}
+                        </div>
+                      );
+                    }}
+                  </GetContainer>
                 </CommandGroup>
                 <CommandSeparator />
               </CommandList>
@@ -150,7 +157,7 @@ const TagWindow = () => {
 
 export default TagWindow;
 
-const SingleTag = ({ title, id }: { title: string; id: number }) => {
+const SingleTag = ({ title, id }: { title: string; id: string }) => {
   return (
     <div className="dark:bg-slate-500 bg-slate-600 p-2 rounded-lg flex gap-3 items-center justify-between px-4 w-full ">
       <div className="flex gap-3 items-center">

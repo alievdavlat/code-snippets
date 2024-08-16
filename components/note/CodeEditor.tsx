@@ -10,14 +10,18 @@ import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/ext-language_tools";
 import { ContentCopyOutlined, DoneOutlined } from "@mui/icons-material";
+import { Control, Controller } from "react-hook-form";
+import { data } from "@/app/data";
 
 interface codeEditorProps {
-  handleChangeCode: (value: any) => void;
-  code: string;
+  name:string 
+  control?: Control;
+
 }
 
-const CodeEditor = ({ handleChangeCode, code }: codeEditorProps) => {
+const CodeEditor = ({ name, control}: codeEditorProps) => {
   const [isCopied, setIsCopied] = React.useState(false);
+  const [code, setCode] = React.useState(data.code);
 
   const defaultOptions = {
     loop: isCopied,
@@ -58,28 +62,37 @@ const CodeEditor = ({ handleChangeCode, code }: codeEditorProps) => {
           </IconButton>
         </div>
 
-
-        <AceEditor
-          placeholder="Code"
-          mode="javascript"
-          theme="solarized_dark"
-          name="blah2"
-          fontSize={14}
-          lineHeight={19}
-          showPrintMargin={true}
-          showGutter={true}
-          highlightActiveLine={true}
-          className={`dark:bg-transparent dark:text-white bg-white text-slate-500`}
-          style={{ background: "transparent" }}
-          value={code}
-          setOptions={{
-            enableBasicAutocompletion: true,
-            enableLiveAutocompletion: true,
-            enableSnippets: true,
-            showLineNumbers: true,
-            tabSize: 2,
-          }}
-          onChange={handleChangeCode}
+        <Controller
+          key={name}
+          name={name}
+          control={control}
+          render={({ field }) => (
+            <AceEditor
+              placeholder="Code"
+              mode="javascript"
+              theme="solarized_dark"
+              name={name}
+              fontSize={14}
+              lineHeight={19}
+              showPrintMargin={true}
+              showGutter={true}
+              highlightActiveLine={true}
+              className={`dark:bg-transparent dark:text-white bg-white text-slate-500`}
+              style={{ background: "transparent" }}
+              value={field.value}
+              setOptions={{
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true,
+                enableSnippets: true,
+                showLineNumbers: true,
+                tabSize: 2,
+              }}
+              onChange={(value) => {
+                setCode(value)
+                field.onChange(value)
+              }}
+            />
+          )}
         />
       </div>
     </div>

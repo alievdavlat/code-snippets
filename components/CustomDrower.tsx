@@ -1,5 +1,6 @@
+import { ModalContext } from '@/context/ModalContext';
 import { Drawer } from '@mui/material';
-import React from 'react'
+import React, { useContext } from 'react'
 interface drowerProps {
   openContentNote?: boolean;
   toggleOpenContentNote?: () => any;
@@ -9,6 +10,8 @@ interface drowerProps {
 }
 
 const CustomDrower = ({openContentNote,toggleOpenContentNote , children, onClose, open}:drowerProps) => {
+  const { toggle, isOpen } = useContext<any>(ModalContext);
+
   return (
     <Drawer
     anchor="right"

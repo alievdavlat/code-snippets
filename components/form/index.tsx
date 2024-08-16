@@ -91,7 +91,8 @@ export default function Form(props: ICollectionForm) {
         const transformedData = getInfo?.data?.data?.tags.map(
           (item: any) => item.name
         );
-
+        console.log(getInfo?.data?.data);
+        
         reset(getInfo?.data?.data);
       } else if (getInfo?.data) {
         reset(getInfo?.data);
@@ -103,7 +104,7 @@ export default function Form(props: ICollectionForm) {
     if (props.method === "POST") {
       reset();
     }
-  }, [getInfo.isSuccess, getInfo?.data?.data]);
+  }, [getInfo.isSuccess, getInfo?.data, props, reset, getInfo?.data?.data]);
 
   const createInfo = useMutation({
     mutationFn: async (data: any) => {
@@ -113,7 +114,7 @@ export default function Form(props: ICollectionForm) {
             ? props.url + "/" + query.get("id")
             : props.url,
         data: data,
-        method: props.method ? props.method : props.getUrl ? "PUT" : "POST",
+        method: props.method ? props.method: 'POST',
       });
 
       return response?.data;
@@ -141,6 +142,7 @@ export default function Form(props: ICollectionForm) {
     },
   });
 
+  
   const { mutate: create, isError, isSuccess } = createInfo;
 
   async function handleFinish(values: any) {

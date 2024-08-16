@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { Drawer } from "@mui/material";
 import Logo from "./ui/Logo";
 import Link from "next/link";
 import { HeartIcon, TrashIcon, ViewGridIcon } from "@radix-ui/react-icons";
@@ -56,6 +57,10 @@ import {
   SiSqlite,
 } from "react-icons/si";
 
+interface drowerProps {
+  open?: boolean;
+  onClose?: () => void;
+}
 interface ISidebarItemProps {
   title: string;
   link: string;
@@ -383,8 +388,7 @@ const LanguageItems = () => {
     </>
   );
 };
-
-const Sidebar = () => {
+const MobileSidebar = ({ onClose, open }: drowerProps) => {
   const [active, setActive] = React.useState(0);
   const links = [
     {
@@ -408,37 +412,49 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="flex flex-col z-50  w-[15%]  rounded-r-3xl overflow-hidden bg-secondary border  h-[100vh] max-[1100px]:hidden max-md:hidden">
-      <div className="flex items-center justify-center p-4 mb-20">
-        <Logo />
+    <Drawer
+      anchor="left"
+      open={open}
+      onClose={onClose}
+      sx={{
+        "& .MuiDrawer-paper": {
+          width: { xs: "85%", sm: "85%", md: "40%" },
+        },
+        p: "10px",
+      }}
+      ModalProps={{ keepMounted: false, disableEnforceFocus: true }}>
+      <div className="flex flex-col z-50  w-full  overflow-hidden bg-transparent h-[100vh]">
+        <div className="flex items-center justify-center p-4 mb-20">
+          <Logo />
+        </div>
+
+        <ul className="flex flex-col py-4 gap-3">
+          {links.map((item, index) => (
+            <div key={item.id} onClick={() => setActive(index)}>
+              <SidebarItems
+                title={item.title}
+                link={item.link}
+                icon={item.icon}
+                id={active}
+                index={index}
+              />
+            </div>
+          ))}
+        </ul>
+
+        <div className="flex justify-between flex-col h-full pb-10">
+          <LanguageItems />
+
+          <SignOutButton>
+            <div className="flex items-center dark:text-white text-slate-500 mt-10 px-3 gap-2 cursor-pointer">
+              <LogoutIcon sx={{ fontSize: "1.6rem" }} />
+              <span>Log Out</span>
+            </div>
+          </SignOutButton>
+        </div>
       </div>
-
-      <ul className="flex flex-col py-4 gap-3">
-        {links.map((item, index) => (
-          <div key={item.id} onClick={() => setActive(index)}>
-            <SidebarItems
-              title={item.title}
-              link={item.link}
-              icon={item.icon}
-              id={active}
-              index={index}
-            />
-          </div>
-        ))}
-      </ul>
-
-      <div className="flex justify-between flex-col h-full pb-10">
-        <LanguageItems />
-
-        <SignOutButton>
-          <div className="flex items-center dark:text-white text-slate-500 mt-10 px-3 gap-2 cursor-pointer">
-            <LogoutIcon sx={{ fontSize: "1.6rem" }} />
-            <span>Log Out</span>
-          </div>
-        </SignOutButton>
-      </div>
-    </div>
+    </Drawer>
   );
 };
 
-export default Sidebar;
+export default MobileSidebar;

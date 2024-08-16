@@ -30,15 +30,13 @@ type Props = {
 const GlobalFilterProvider = ({ children }: Props) => {
   // ** States
   const [globalFilter, setGlobalFilter] = useState('')
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<string>('all');
 
-
+  console.log(tags);
+  
   const handleTags = (title:string) => {
     
-    setTags((prevTags) => {
-      const updatedTags = new Set([...prevTags, title]);
-      return Array.from(updatedTags);
-    });
+    setTags(title);
   }
 
   const values = {

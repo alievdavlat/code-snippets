@@ -43,11 +43,10 @@ const snippetSchema = new mongoose.Schema(
     },
     tags: [
       {
-        name: {
-          type: String,
-          required: true, // Ensure each tag name is required
-        },
-      },
+      name:{
+        type:String
+      }
+      }
     ],
     description: {
       type: String,
@@ -73,7 +72,6 @@ const snippetSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
 
 const Snippet = models.Snippets || mongoose.model("Snippets", snippetSchema);
 export const TagSchema = models.Tags || mongoose.model("Tags", SingleTagSchema);

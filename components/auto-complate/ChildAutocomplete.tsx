@@ -57,7 +57,7 @@ const ChildAutocomplete = (props: ChildProps) => {
         }
       }
     }
-  }, [props.multiple, props.isLoading, getValue]);
+  }, [props, props.multiple, props.isLoading, getValue]);
 
   const getCssVariable = (variable: string): string =>
     getComputedStyle(document.documentElement).getPropertyValue(variable);

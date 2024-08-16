@@ -23,9 +23,10 @@ function GetContainer(props: IProps) {
   const { data, isLoading, isSuccess, error, isError, isFetching, refetch } = useQuery(
     {
       queryFn: async () => {
+
         const response: any = await hanldeRequest({
           url: props.url,
-          params: { ...props.params },
+          params: props.params,
           method: 'GET'
         })
         

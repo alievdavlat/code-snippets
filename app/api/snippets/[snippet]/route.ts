@@ -13,7 +13,6 @@ export async function GET(req: Request, context: { params: any }) {
 
     await connect();
 
-    // Query by the `id` field instead of `_id`
     const snippet = await snippetSchema.findOne({ id: snippetId });
     if (!snippet) {
       return NextResponse.json({ msg: 'Snippet not found' }, { status: 404 });
@@ -29,10 +28,11 @@ export async function GET(req: Request, context: { params: any }) {
 }
 
 
-export async function PATCH(req: Request, context: { params: any }) {
+export async function PUT(req: Request, context: { params: any }) {
   try {
     const body = await req.json();
     const snippetId = context.params.snippet;
+
     
     if (!snippetId) {
       return NextResponse.json({ msg: 'id Required' }, { status: 400 });
@@ -40,8 +40,6 @@ export async function PATCH(req: Request, context: { params: any }) {
 
 
     await connect();
-
-
     const updatedSnippet = await snippetSchema.findOneAndUpdate(
       {id:snippetId},
       { ...body },
@@ -58,6 +56,32 @@ export async function PATCH(req: Request, context: { params: any }) {
 
     return NextResponse.json({ data: updatedSnippet, status: 200, msg: "ok" });
   } catch (err: any) {
+    console.log(err);
+    return NextResponse.json({ error: err }, { status: 500 });
+  }
+}
+
+
+export async function DELETE(req: Request, context: { params: any }) {
+  try {
+
+    const snippetId = context.params.snippet;
+    
+    if (!snippetId) {
+      return NextResponse.json({ msg:'id Required'}, { status: 400 });
+    }
+
+    await connect()
+
+    const deletedSnippet = await snippetSchema.findOneAndDelete({id:snippetId})
+
+    if (!deletedSnippet) {
+      return NextResponse.json({  message:'Snippet not found', status:404}, { status: 404 });
+    }
+
+    return NextResponse.json({ data:deletedSnippet, message:'ok', status:200}, { status: 200 });
+
+  } catch (err) {
     console.log(err);
     return NextResponse.json({ error: err }, { status: 500 });
   }
