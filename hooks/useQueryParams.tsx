@@ -7,11 +7,15 @@ export interface IMultiple {
 
 const useQueryParams = () => {
   // Parse the current query parameters
-  const queryParams = qs.parse(window.location.search, { ignoreQueryPrefix: true });
+  const queryParams = typeof window !== "undefined"
+    ? qs.parse(window.location.search, { ignoreQueryPrefix: true })
+    : {};
 
   const updateUrl = (newQueryParams: object) => {
-    const newUrl = `${window.location.pathname}?${qs.stringify(newQueryParams)}`;
-    window.history.pushState(null, '', newUrl);
+    if (typeof window !== "undefined") {
+      const newUrl = `${window.location.pathname}?${qs.stringify(newQueryParams)}`;
+      window.history.pushState(null, '', newUrl);
+    }
   };
 
   const set = (key: string, value: string) => {
@@ -59,7 +63,11 @@ const useQueryParams = () => {
   const has = (key: string) => !!queryParams[key];
   const get = (key: string) => queryParams[key];
   const secureGet = (key: string) => queryParams[key] || "";
-  const goBack = () => window.history.back();
+  const goBack = () => {
+    if (typeof window !== "undefined") {
+      window.history.back();
+    }
+  };
 
   return {
     values: queryParams,
