@@ -64,7 +64,7 @@ const ContentNote = () => {
   const createInfo = useMutation({
     mutationFn: async (data: any) => {
       const response = await hanldeRequest({
-        url: `/snippets/${query.get("id")}`,
+        url: `/snippets/` + query.get("id"),
         data: data,
         method: "PUT",
       });
