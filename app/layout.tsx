@@ -7,6 +7,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ModalProvider } from "@/context/ModalContext";
 import QueryProvider from "@/components/providers/query-provider";
+import connect from "@/lib/db";
 
 const raleway = Raleway({ subsets: ["latin"] });
 
@@ -14,6 +15,12 @@ export const metadata: Metadata = {
   title: "Code Snippets",
   description: "Created by Aliev Davlatebk",
 };
+const bootstrap = async () => {
+  await connect()
+}
+
+bootstrap()
+
 
 export default function RootLayout({
   children,
