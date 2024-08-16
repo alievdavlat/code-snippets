@@ -3,6 +3,8 @@ import snippetSchema from "../../../models/SnippetSchema";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request, context: { params: any }) {
+  await connect();
+
   const snippetId = context.params.snippet;
     
   try { 
@@ -11,7 +13,6 @@ export async function GET(req: Request, context: { params: any }) {
     }
 
 
-    await connect();
 
     const snippet = await snippetSchema.findOne({ id: snippetId });
     if (!snippet) {
@@ -30,6 +31,7 @@ export async function GET(req: Request, context: { params: any }) {
 
 export async function PUT(req: Request, context: { params: any }) {
   try {
+    await connect();
     const body = await req.json();
     const snippetId = context.params.snippet;
 
@@ -39,7 +41,6 @@ export async function PUT(req: Request, context: { params: any }) {
     }
 
 
-    await connect();
     const updatedSnippet = await snippetSchema.findOneAndUpdate(
       {id:snippetId},
       { ...body },
@@ -64,6 +65,7 @@ export async function PUT(req: Request, context: { params: any }) {
 
 export async function DELETE(req: Request, context: { params: any }) {
   try {
+    await connect()
 
     const snippetId = context.params.snippet;
     
@@ -71,7 +73,6 @@ export async function DELETE(req: Request, context: { params: any }) {
       return NextResponse.json({ msg:'id Required'}, { status: 400 });
     }
 
-    await connect()
 
     const deletedSnippet = await snippetSchema.findOneAndDelete({id:snippetId})
 

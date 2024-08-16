@@ -4,12 +4,12 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
+    await connect();
     const {
       clerkUserId, 
       name
     } = await req.json();
 
-    await connect();
 
     const note = new TagSchema({
       clerkUserId, 

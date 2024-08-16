@@ -2,8 +2,9 @@ import connect from "@/lib/db";
 import snippetSchema from "../../models/SnippetSchema";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(req: Request) {  
   try {
+    await connect();
     const {
       title,
       isFavorite,
@@ -16,7 +17,6 @@ export async function POST(req: Request) {
       libery
     } = await req.json();
 
-    await connect();
 
     const note = new snippetSchema({
       title,
@@ -42,14 +42,15 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  
   try {
+    await connect();
     const { searchParams } = new URL(req.url);
     const clerkId = searchParams.get("clerkId");
     const search = searchParams.get("search");
     const tag = searchParams.get("tag"); // Single tag string
 
     
-    await connect();
 
     let query: any = {};
 
@@ -77,13 +78,13 @@ export async function GET(req: Request) {
 
 export async function PUT(req: Request) {
   try {
+    await connect();
     const body = await req.json();
     const {searchParams} = new URL(req.url);
     const id = searchParams.get("id");
 
     let query: any = {};
     
-    await connect();
 
     if (id) query.id = id;
 
@@ -93,7 +94,6 @@ export async function PUT(req: Request) {
       { new: true }
     );
 
-    console.log(updatedSnippet);
     
     if (!updatedSnippet) {
       return NextResponse.json({
@@ -112,7 +112,7 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-
+    await connect()
     const {searchParams} = new URL(req.url);
 
     const snippetId = searchParams.get("id")
@@ -121,7 +121,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ msg:'id Required'}, { status: 400 });
     }
 
-    await connect()
+   
 
     const deletedSnippet = await snippetSchema.findByIdAndDelete({id:snippetId})
 
