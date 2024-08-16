@@ -234,7 +234,7 @@ const ContentNote = () => {
                         ? create(transformedData)
                         : await handleFinish(transformedData);
                     }
-                    // toggle();
+                    toggle();
                   })}>
                   Save
                 </button>
