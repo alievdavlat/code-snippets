@@ -37,9 +37,7 @@ const Tags = () => {
             return <Loader />;
           }
 
-          if (isError) {
-            return <ErrorData />;
-          }
+         
 
           if (data?.data?.length <= 0) {
             return <NoData />;
