@@ -33,14 +33,11 @@ const Searchbar = () => {
     <div className="flex items-center space-x-4">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[150px] justify-start">
           <input
           placeholder="search a snippet..."
-          disabled
           className="w-full outline-none text-sm  dark:text-slate-200 text-slate-400 bg-transparent"
           type="text"
         />
-          </Button>
         </PopoverTrigger>
         <PopoverContent className="p-0" side="right" align="start">
           <Command>
@@ -50,7 +47,8 @@ const Searchbar = () => {
               <CommandGroup>
                   <CommandItem
                     value={''}
-                    onSelect={(value) => {}}>
+                    onSelect={(value) => {}}
+                    >
                       hh
                   </CommandItem>
               </CommandGroup>
