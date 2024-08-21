@@ -60,7 +60,7 @@ const Tags = () => {
                 handleTags(item.name);
               }}
               className={` z-10 transition-all ease-out duration-150 rounded-md  tags  hover:bg-primary hover:text-white ${
-                index === active
+                index + 1`` === active
                   ? "bg-primary text-white"
                   : "bg-transparent text-slate-400"
               }`}>
