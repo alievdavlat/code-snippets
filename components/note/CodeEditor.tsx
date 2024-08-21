@@ -13,13 +13,13 @@ import { ContentCopyOutlined, DoneOutlined } from "@mui/icons-material";
 import { Control, Controller } from "react-hook-form";
 import { data } from "@/app/data";
 
-interface codeEditorProps {
-  name:string 
-  control?: Control;
-
+interface CodeEditorProps {
+name: string;
+value:any
+onchange:(e:any) => void
 }
 
-const CodeEditor = ({ name, control}: codeEditorProps) => {
+const CodeEditor = (props: CodeEditorProps) => {
   const [isCopied, setIsCopied] = React.useState(false);
   const [code, setCode] = React.useState(data.code);
 
@@ -62,16 +62,12 @@ const CodeEditor = ({ name, control}: codeEditorProps) => {
           </IconButton>
         </div>
 
-        <Controller
-          key={name}
-          name={name}
-          control={control}
-          render={({ field }) => (
+        
             <AceEditor
               placeholder="Code"
               mode="javascript"
               theme="solarized_dark"
-              name={name}
+              name={props.name}
               fontSize={14}
               lineHeight={19}
               showPrintMargin={true}
@@ -79,7 +75,7 @@ const CodeEditor = ({ name, control}: codeEditorProps) => {
               highlightActiveLine={true}
               className={`dark:bg-transparent dark:text-white bg-white text-slate-500`}
               style={{ background: "transparent" }}
-              value={field.value}
+              value={props.value}
               setOptions={{
                 enableBasicAutocompletion: true,
                 enableLiveAutocompletion: true,
@@ -89,11 +85,9 @@ const CodeEditor = ({ name, control}: codeEditorProps) => {
               }}
               onChange={(value) => {
                 setCode(value)
-                field.onChange(value)
+                props.onchange(value)
               }}
             />
-          )}
-        />
       </div>
     </div>
   );

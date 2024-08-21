@@ -1,5 +1,5 @@
 "use client";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/clerk-react";
 import React, { Dispatch, SetStateAction, useContext } from "react";
 import { IoMdSearch } from "react-icons/io";
 import { GoPlus } from "react-icons/go";
@@ -16,6 +16,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+
 import {
   Popover,
   PopoverContent,

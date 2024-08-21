@@ -49,38 +49,31 @@ import {
   SiSqlite,
 } from "react-icons/si";
 
-import { DeleteRounded } from "@mui/icons-material";
+import {  DeleteForeverRounded, DeleteRounded } from "@mui/icons-material";
 import { EditOutlined, FavoriteBorderOutlined } from "@mui/icons-material";
 
 import CodeBlocks from "./CodeBlock";
 import moment from "moment";
-import { useMutation } from "@tanstack/react-query";
-import { hanldeRequest } from "@/configs/req";
-import { toast } from "sonner";
 import { HeartFilledIcon } from "@radix-ui/react-icons";
+import { Id } from "@/convex/_generated/dataModel";
+import { GlobalFilter } from "@/context/TableFilterContext";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
-interface tagProps {
-  id: string;
-  name: string;
-  clerkUserId: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface NoteItemProps {
-  id: string;
-  title: string;
-  isFavorite: boolean;
+  _id: Id<"snippets">;
+  _creationTime: number;
+  isFavorite?: boolean | undefined;
+  isTrash?: boolean | undefined;
+  tags: string[];
   clerkUserId: string;
-  tags: tagProps[];
+  title: string;
   description: string;
   code: string;
   language: string;
-  isTrash: boolean;
-  createdAt: string;
-  updatedAt: string;
-  onclick?:(id: any) => void
-  refetch:() => void
+  libery: string;
+  deleteWork?: boolean;
 }
 
 const programmingLanguages = [
@@ -311,135 +304,133 @@ const programmingLanguages = [
 ];
 
 const NoteItem = ({
+  _creationTime,
+  _id,
+  clerkUserId,
   code,
   description,
-  isFavorite,
   language,
+  libery,
   tags,
-  isTrash,
-  clerkUserId,
-  createdAt,
-  id,
   title,
-  updatedAt,
-  onclick,
-  refetch
+  isFavorite,
+  isTrash,
+  deleteWork,
 }: NoteItemProps) => {
   const { toggle, isOpen } = useContext<any>(ModalContext);
   const query = useQueryParams();
   const [isLiked, setIsLiked] = React.useState(false);
+  const [trash, setIsTrash] = React.useState(false);
+  const { setSingleSnippetId } = useContext<any>(GlobalFilter);
+
+  const setIsFavorite = useMutation(api.snippets.setFavorite);
+  const setTrash = useMutation(api.snippets.setTrash);
+  const deletSnippet = useMutation(api.snippets.deleteSnippt);
+
+
+  const onDelete = (id:Id<"snippets">) => {
+    deletSnippet({
+      id:id
+    })
+  }
+
+  const onSetTrash = (id: Id<"snippets">) => {
+    setIsTrash(!isLiked);
+    setTrash({
+      id,
+      isTrash: trash,
+    });
+  };
+
+
+  const onSetLike = (id: Id<"snippets">) => {
+    setIsLiked(!isLiked);
+    setIsFavorite({
+      id,
+      isFavirite: isLiked,
+    });
+  };
+
   const handleOpen = (id: any) => {
+    setSingleSnippetId(id);
     query.set("id", id);
     toggle();
   };
 
-  const createInfo = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await hanldeRequest({
-        url: `/snippets/${id}`,
-        data: data,
-        method: "PUT",
-      });
-
-      return response?.data;
-    },
-    onSuccess(data) {
-      toast.success("Updated");
-    },
-    onError(error: any) {
-      toast.error(String(error || error?.message));
-    },
-  });
-
-  const { mutate } = createInfo;
-
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-
-    mutate({
-      isFavorite: isLiked,
-    });
-    refetch()
-  };
-
   return (
     <div className="z-10 cursor-pointer">
-        <div
-          className={`dark:bg-slate-800 bg-secondary border border-slate-400 dark:text-white text-slate-500 max-sm:w-full  rounded-md py-4 ${
-            isOpen ? "w-full" : "w-[380px]"
-          }`}>
-          {/* header */}
-          <div
-            className="flex justify-between items-center mx-4 gap-2">
-            <span 
-             className="font-bold text-lg">
-              {title}
+      <div
+        className={`dark:bg-slate-800 bg-secondary border border-slate-400 dark:text-white text-slate-500 max-sm:w-full  rounded-md py-4 ${
+          isOpen ? "w-full" : "w-[380px]"
+        }`}>
+        {/* header */}
+        <div className="flex justify-between items-center mx-4 gap-2">
+          <span className="font-bold text-lg">{title}</span>
+          {isFavorite ? (
+            <HeartFilledIcon
+              fontSize={"2.5rem"}
+              onClick={() => onSetLike(_id)}
+              className="text-red-500 cursor-pointer z-10 h-[25px] w-[25px]"
+            />
+          ) : (
+            <FavoriteBorderOutlined
+              onClick={() => onSetLike(_id)}
+              className="text-slate-500 cursor-pointer z-10"
+            />
+          )}
+        </div>
+
+        {/* Date */}
+        <div className="text-slate-500 text-[16px] flex gap-1 mt-1 font-light mx-4">
+          <span>{moment(_creationTime).format("lll")}</span>
+        </div>
+
+        {/* tags */}
+        <div className="text-slate-400 text-[15px] mx-4 flex-wrap flex gap-1 mt-4">
+          {tags.map((tag) => (
+            <span
+              className="border border-slate-500 p-1 rounded-md px-2"
+              key={tag}>
+              {tag}
             </span>
-            {isFavorite ? (
-              <HeartFilledIcon
-                onClick={handleLike}
-                fontSize={'2.5rem'}
-                className="text-red-500 cursor-pointer z-10 h-[25px] w-[25px]"
-              />
+          ))}
+        </div>
+
+        {/* code  */}
+        <div className="w-full" onClick={() => handleOpen(_id)}>
+          <CodeBlocks language={language || "Javascript"} code={code || ""} />
+        </div>
+        {/* descr  */}
+        <div className="dark:text-slate-300 text-slate-600 text-[13px] mt-4 mx-4">
+          {description}
+        </div>
+
+        {/* footer */}
+
+        <div className="flex justify-between text-[13px] dark:text-slate-400 text-slate-600 mx-4 mt-3">
+          <div className="flex gap-1">
+            {
+              programmingLanguages.find(
+                (language: any) => language.name === language
+              )?.icon
+            }
+            <span>{language}</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <EditOutlined
+              sx={{ fontSize: 17 }}
+              className="cursor-pointer"
+              onClick={() => handleOpen(_id)}
+            />
+            
+            {deleteWork ? (
+              <DeleteForeverRounded  className="cursor-pointer" onClick={() => onDelete(_id)} />
             ) : (
-              <FavoriteBorderOutlined
-                onClick={handleLike}
-                className="text-slate-500 cursor-pointer z-10"
-              />
+              <DeleteRounded sx={{ fontSize: 17 }} className="cursor-pointer" onClick={() => onSetTrash(_id)} />
             )}
           </div>
-
-          {/* Date */}
-          <div className="text-slate-500 text-[16px] flex gap-1 mt-1 font-light mx-4">
-            <span 
-             >
-              {moment(createdAt).format("lll")}
-            </span>
-          </div>
-
-          {/* tags */}
-          <div className="text-slate-400 text-[15px] mx-4 flex-wrap flex gap-1 mt-4">
-            {tags.map((tag) => (
-              <span
-                className="border border-slate-500 p-1 rounded-md px-2"
-                key={tag?.id}>
-                {tag?.name}
-              </span>
-            ))}
-          </div>
-
-          {/* code  */}
-          <div
-            className="w-full"
-            onClick={() => handleOpen(id)}>
-            <CodeBlocks language={language || "Javascript"} code={code || ""} />
-          </div>
-          {/* descr  */}
-          <div className="dark:text-slate-300 text-slate-600 text-[13px] mt-4 mx-4">
-            {description}
-          </div>
-
-          {/* footer */}
-
-          <div className="flex justify-between text-[13px] dark:text-slate-400 text-slate-600 mx-4 mt-3">
-            <div className="flex gap-1">
-              {
-                programmingLanguages.find(
-                  (language: any) => language.name === language
-                )?.icon
-              }
-              <span>{language}</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <EditOutlined
-                sx={{ fontSize: 17 }}
-                className="cursor-pointer"
-                onClick={() => handleOpen(id)}
-              />
-              <DeleteRounded sx={{ fontSize: 17 }} className="cursor-pointer" onClick={() => onclick ?  onclick(id) : {}}/>
-            </div>
-          </div>
         </div>
+      </div>
     </div>
   );
 };

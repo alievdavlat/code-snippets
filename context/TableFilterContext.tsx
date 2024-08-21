@@ -6,7 +6,9 @@ import { createContext, useState, ReactNode, SetStateAction, Dispatch } from 're
 
 export interface TableFilterType {
   globalFilter: string
-  tags:string[] | string
+  tags:string
+  singleSnippetId:string,
+  setSingleSnippetId:Dispatch<SetStateAction<string>>,
   setGlobalFilter: Dispatch<SetStateAction<string>>
   setTags: Dispatch<SetStateAction<string>>
   handleTags:(title:string) => void
@@ -15,7 +17,9 @@ export interface TableFilterType {
 
 const defaultProvider = {
   globalFilter: '',
-  tags: [''] || '',
+  tags: '',
+  singleSnippetId:'',
+  setSingleSnippetId:() => '',
   setTags: () => '',
   setGlobalFilter: () => '',
   handleTags:() => null
@@ -30,9 +34,9 @@ type Props = {
 const GlobalFilterProvider = ({ children }: Props) => {
   // ** States
   const [globalFilter, setGlobalFilter] = useState('')
-  const [tags, setTags] = useState<string>('all');
+  const [tags, setTags] = useState('All');
+  const [singleSnippetId, setSingleSnippetId] = useState('jh7dezjxzzxjv2c456qgnpfjwd6z96db');
 
-  console.log(tags);
   
   const handleTags = (title:string) => {
     
@@ -44,7 +48,9 @@ const GlobalFilterProvider = ({ children }: Props) => {
     setGlobalFilter,
     tags,
     setTags,
-    handleTags
+    handleTags,
+    singleSnippetId,
+    setSingleSnippetId
   }
   //@ts-ignore
 

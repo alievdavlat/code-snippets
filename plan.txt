@@ -16,29 +16,793 @@ mobile menu yasash
 
 
 
-<div class="relative" data-hs-combo-box='{
-  "apiUrl": "https://freetestapi.com/api/v1/countries",
-  "outputItemTemplate": "<div class=\"cursor-pointer py-2 px-4 w-full text-sm text-gray-800 hover:bg-gray-100 rounded-lg focus:outline-none focus:bg-gray-100" data-hs-combo-box-output-item><div class=\"flex justify-between items-center w-full\"><div><div data-hs-combo-box-output-item-field=\"name\" data-hs-combo-box-search-text data-hs-combo-box-value></div></div><span class=\"hidden hs-combo-box-selected:block\"><svg class=\"shrink-0 size-3.5 text-blue-600" xmlns=\"http:.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg></span></div></div>"
-}'>
-  <div class="relative">
-    <input class="py-3 ps-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none" type="text" role="combobox" aria-expanded="false" value="Argentina" data-hs-combo-box-input="">
-    <div class="absolute top-1/2 end-3 -translate-y-1/2" aria-expanded="false" data-hs-combo-box-toggle="">
-      <svg class="shrink-0 size-3.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="m7 15 5 5 5-5"></path>
-        <path d="m7 9 5-5 5 5"></path>
-      </svg>
-    </div>
-  </div>
-  <div class="absolute z-50 w-full max-h-72 p-1 bg-white border border-gray-200 rounded-lg overflow-hidden overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300" style="display: none;" data-hs-combo-box-output=""></div>
-</div>
+"use client";
 
-<input
-          placeholder="search a snippet..."
-          className="w-full outline-none text-sm  dark:text-slate-200 text-slate-400 bg-transparent"
-          type="text"
-          role="combobox"
-          aria-expanded="false"
-          aria-controls="false"
-          defaultValue="Argentina"
-          data-hs-combo-box-input=""
+import React from "react";
+import { IconButton } from "@mui/material";
+import AceEditor from "react-ace";
+import animationData from "../../app/data/conffeti.json";
+import Lottie from "react-lottie";
+import { toast } from "sonner";
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
+import { ContentCopyOutlined, DoneOutlined } from "@mui/icons-material";
+import { Control, Controller } from "react-hook-form";
+import { data } from "@/app/data";
+
+interface codeEditorProps {
+  name:string 
+  control?: Control;
+
+}
+
+const CodeEditor = ({ name, control}: codeEditorProps) => {
+  const [isCopied, setIsCopied] = React.useState(false);
+  const [code, setCode] = React.useState(data.code);
+
+  const defaultOptions = {
+    loop: isCopied,
+    autoplay: isCopied,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(code);
+    setIsCopied(!isCopied);
+    toast.success("Code Copied");
+  };
+
+  return (
+    <div className="flex gap-2 text-slate-400 mt-8">
+      <div
+        className={`hover:border-primary border-slate-400 border rounded lg p-3  w-full relative`}>
+        <div className="absolute  right-4 z-50 mb-2">
+          <IconButton>
+            {isCopied ? (
+              <>
+                <Lottie options={defaultOptions} height={50} width={50} />
+                <DoneOutlined
+                  sx={{ fontSize: 18 }}
+                  className={`dark:text-white text-slate-500 ml-1`}
+                />
+              </>
+            ) : (
+              <ContentCopyOutlined
+                sx={{ fontSize: 18 }}
+                onClick={handleCopyCode}
+                className={`dark:text-white text-slate-500 ml-1`}
+              />
+            )}
+          </IconButton>
+        </div>
+
+        <Controller
+          key={name}
+          name={name}
+          control={control}
+          render={({ field }) => (
+            <AceEditor
+              placeholder="Code"
+              mode="javascript"
+              theme="solarized_dark"
+              name={name}
+              fontSize={14}
+              lineHeight={19}
+              showPrintMargin={true}
+              showGutter={true}
+              highlightActiveLine={true}
+              className={`dark:bg-transparent dark:text-white bg-white text-slate-500`}
+              style={{ background: "transparent" }}
+              value={field.value}
+              setOptions={{
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true,
+                enableSnippets: true,
+                showLineNumbers: true,
+                tabSize: 2,
+              }}
+              onChange={(value) => {
+                setCode(value)
+                field.onChange(value)
+              }}
+            />
+          )}
         />
+      </div>
+    </div>
+  );
+};
+
+export default CodeEditor;
+
+
+import React from "react";
+import { Control, Controller, FieldErrors, FieldError } from "react-hook-form";
+import { TextFieldProps } from "@mui/material/TextField";
+
+type TextAreaFieldProps = {
+  name: string;
+  label?: string;
+  placeholder: string;
+  control?: Control;
+  error?: FieldErrors | FieldError;
+  inputProps?: TextFieldProps;
+  type?: string;
+  icon?: string;
+  rows?: number;
+  className?: string;
+  onMouseEnter?:() => any
+  onMouseLeave?:() => any
+};
+const ControllerTextArea = (props: TextAreaFieldProps) => {
+  const {  name, placeholder, control, className, rows } = props;
+
+  return (
+    <Controller
+      key={name}
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <textarea
+          onMouseEnter={props.onMouseEnter}
+          onMouseLeave={props.onMouseLeave}
+          placeholder={placeholder.toString()}
+          defaultValue={""}
+          value={field.value}
+          onChange={(e: any) => field.onChange(e.target.value)}
+          rows={rows}
+          className={className}
+        />
+      )}
+    />
+  );
+};
+
+export default ControllerTextArea;
+
+
+
+"use client";
+import React, { useState } from "react";
+
+import {
+  SiPython,
+  SiJavascript,
+  SiCplusplus,
+  SiCsharp,
+  SiPhp,
+  SiRuby,
+  SiTypescript,
+  SiSwift,
+  SiKotlin,
+  SiGo,
+  SiRust,
+  SiScala,
+  SiPerl,
+  SiHaskell,
+  SiLua,
+  SiR,
+  SiDart,
+  SiElixir,
+  SiFsharp,
+  SiClojure,
+  SiErlang,
+  SiShell,
+  SiHtml5,
+  SiCss3,
+  SiPowershell,
+  SiAssemblyscript,
+  SiV,
+  SiFortran,
+  SiJulia,
+  SiCrystal,
+  SiElm,
+  SiVisualstudio,
+  SiDelphi,
+  SiRacket,
+  SiOcaml,
+  SiNim,
+  SiD,
+  SiZig,
+  SiPostgresql,
+  SiScratch,
+  SiLabview,
+  SiVala,
+  SiRing,
+  SiSqlite,
+} from "react-icons/si";
+
+import { Control, Controller } from "react-hook-form";
+import useQueryParams from "@/hooks/useQueryParams";
+
+const programmingLanguages = [
+  {
+    id: 1,
+    name: "Python",
+    icon: <SiPython className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 2,
+    name: "JavaScript",
+    icon: <SiJavascript className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 3,
+    name: "C++",
+    icon: <SiCplusplus className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 4,
+    name: "C#",
+    icon: <SiCsharp className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 5,
+    name: "PHP",
+    icon: <SiPhp className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 6,
+    name: "Ruby",
+    icon: <SiRuby className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 7,
+    name: "TypeScript",
+    icon: <SiTypescript className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 8,
+    name: "Swift",
+    icon: <SiSwift className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 9,
+    name: "Kotlin",
+    icon: <SiKotlin className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 10,
+    name: "Go",
+    icon: <SiGo className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 11,
+    name: "Rust",
+    icon: <SiRust className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 12,
+    name: "Scala",
+    icon: <SiScala className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 13,
+    name: "Perl",
+    icon: <SiPerl className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 14,
+    name: "Haskell",
+    icon: <SiHaskell className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 15,
+    name: "Lua",
+    icon: <SiLua className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 16,
+    name: "R",
+    icon: <SiR className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 17,
+    name: "Dart",
+    icon: <SiDart className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 18,
+    name: "Elixir",
+    icon: <SiElixir className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 19,
+    name: "F#",
+    icon: <SiFsharp className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 20,
+    name: "Clojure",
+    icon: <SiClojure className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 21,
+    name: "Erlang",
+    icon: <SiErlang className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 22,
+    name: "Shell",
+    icon: <SiShell className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 23,
+    name: "HTML",
+    icon: <SiHtml5 className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 24,
+    name: "CSS",
+    icon: <SiCss3 className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 25,
+    name: "PowerShell",
+    icon: <SiPowershell className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 26,
+    name: "Assembly",
+    icon: (
+      <SiAssemblyscript className="mb-[2px] dark:text-white text-slate-400" />
+    ),
+  },
+  {
+    id: 27,
+    name: "V",
+    icon: <SiV className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 28,
+    name: "Fortran",
+    icon: <SiFortran className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 29,
+    name: "Julia",
+    icon: <SiJulia className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 30,
+    name: "Crystal",
+    icon: <SiCrystal className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 31,
+    name: "Elm",
+    icon: <SiElm className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 32,
+    name: "Visual Studio",
+    icon: (
+      <SiVisualstudio className="mb-[2px] dark:text-white text-slate-400" />
+    ),
+  },
+  {
+    id: 33,
+    name: "Delphi",
+    icon: <SiDelphi className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 34,
+    name: "Racket",
+    icon: <SiRacket className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 35,
+    name: "OCaml",
+    icon: <SiOcaml className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 36,
+    name: "Nim",
+    icon: <SiNim className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 37,
+    name: "D",
+    icon: <SiD className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 38,
+    name: "Zig",
+    icon: <SiZig className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 39,
+    name: "PostgreSQL",
+    icon: <SiPostgresql className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 40,
+    name: "Scratch",
+    icon: <SiScratch className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 41,
+    name: "LabVIEW",
+    icon: <SiLabview className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 42,
+    name: "Vala",
+    icon: <SiVala className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 43,
+    name: "Ring",
+    icon: <SiRing className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+  {
+    id: 44,
+    name: "SQLite",
+    icon: <SiSqlite className="mb-[2px] dark:text-white text-slate-400" />,
+  },
+];
+
+interface LanguageDropDownProps {
+  name: string;
+  control: Control;
+  placeholder: string;
+}
+const LanguageDropDown = ({
+  control,
+  name,
+  placeholder,
+}: LanguageDropDownProps) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const query = useQueryParams();
+  const filteredLanguages = programmingLanguages.filter((lang) =>
+    lang.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <div className="relative w-full">
+          <div
+            className="border border-slate-400 hover:border-primary active:border-primary rounded-lg p-2 bg-white dark:bg-secondary cursor-pointer"
+            onClick={() => setIsOpen(!isOpen)}>
+            <input
+              type="text"
+              className="w-full p-2 bg-transparent border-none outline-none dark:text-white text-slate-400"
+              placeholder={placeholder}
+              value={query.has("id") ? field.value : searchTerm}
+              onChange={(e) => {
+                field.onChange(e.target.value);
+                setSearchTerm(e.target.value);
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(true);
+              }}
+              // {...field}
+            />
+          </div>
+          {isOpen && (
+            <div className="absolute z-10 mt-1 w-full rounded-lg shadow-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-secondary max-h-60 overflow-auto">
+              {filteredLanguages.length === 0 ? (
+                <div className="p-2 dark:text-white text-slate-400">
+                  No results found
+                </div>
+              ) : (
+                filteredLanguages.map((lang) => (
+                  <div
+                    key={lang.id}
+                    className="flex items-center p-2 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600"
+                    onClick={() => {
+                      field.onChange(lang.name);
+                      setSearchTerm(lang.name);
+                      setIsOpen(false);
+                    }}>
+                    {lang.icon}
+                    <span className="ml-2 dark:text-white text-slate-400">
+                      {lang.name}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    />
+  );
+};
+
+export default LanguageDropDown;
+
+
+
+// @ts-nocheck
+import React, { memo, useEffect, useMemo } from "react";
+import Select from "react-select";
+import { FormHelperText, InputLabel } from "@mui/material";
+
+interface ChildProps {
+  onChange: (item: any) => void;
+  options: any[];
+  value: any;
+  ref: any;
+  multiple?: boolean;
+  error: any;
+  label: string;
+  isLoading: boolean;
+  disabled?: boolean;
+  getOptionLabel: (option: any) => string;
+  filterOption?: (option: any, inputValue: string) => boolean;
+  getValue: (option: any) => string;
+  search?: string;
+  setSearch?: React.Dispatch<React.SetStateAction<string>>;
+  onSelect?: (data: any) => void;
+  autoWidth?: boolean;
+  onlyArray?: boolean;
+  placeholder?: string;
+}
+
+const ChildAutocomplete = (props: ChildProps) => {
+  const getValue = useMemo(() => {
+    const isArray = Array.isArray(props?.value);
+
+    if (!props.isLoading) {
+      if (props.multiple) {
+        return isArray
+          ? props.options?.filter((item: any) =>
+              props?.value?.some((el: any) => el == props.getValue(item))
+            )
+          : [];
+      } else {
+        return !!props?.value
+          ? props.options?.find((item) => props.getValue(item) == props?.value)
+          : null;
+      }
+    }
+  }, [props]);
+
+  useEffect(() => {
+    if (!props.isLoading) {
+      if (props.multiple) {
+        if (!getValue) {
+          props.onChange([]);
+        }
+      } else {
+        if (!getValue) {
+          props.onChange(null);
+        }
+      }
+    }
+  }, [props, props.multiple, props.isLoading, getValue]);
+
+  const getCssVariable = (variable: string): string =>
+    getComputedStyle(document.documentElement).getPropertyValue(variable);
+
+  const colorStyles = {
+    control: (style, state) => ({
+      ...style,
+      alignItems: "flex-start",
+      padding: 0,
+      borderRadius: "var(--radius)",
+      backgroundColor: "transparent",
+      borderColor: state.isFocused
+        ? `hsl(${getCssVariable("--ring")})`
+        : `hsla(${getCssVariable("--ring")}, 0.2)`,
+      boxShadow: state.isFocused
+        ? `0 0 0 2px hsla(${getCssVariable("--ring")}, 0.2)`
+        : null,
+      "&:hover": {
+        borderColor: state.isFocused
+          ? `hsl(${getCssVariable("--ring")})`
+          : `hsla(${getCssVariable("--ring")}, 0.28)`,
+      },
+      width: "100%", // Selectning kengligini 100% qilish
+    }),
+    option: (style, state) => ({
+      ...style,
+      color: state.isSelected
+        ? getCssVariable("--primary-foreground")
+        : getCssVariable("--foreground"),
+      backgroundColor: state.isSelected
+        ? `hsl(${getCssVariable("--primary")})`
+        : undefined,
+      "&:hover": {
+        backgroundColor: state.isSelected
+          ? `hsl(${getCssVariable("--primary")})`
+          : `hsl(${getCssVariable("--muted")})`,
+      },
+    }),
+    placeholder: (style) => ({
+      ...style,
+      color: `hsl(${getCssVariable("--muted-foreground")})`,
+    }),
+    singleValue: (style) => ({
+      ...style,
+      color: `hsl(${getCssVariable("--foreground")})`,
+    }),
+    menu: (style) => ({
+      ...style,
+      borderRadius: "var(--radius)",
+      boxShadow: `0 2px 10px hsla(${getCssVariable("--foreground")}, 0.1)`,
+      backgroundColor: `hsl(${getCssVariable("--background")})`, // Menyu fonini dark mode uchun o'zgartirish
+      padding: 0, // Menyuda padding bo'lmasligi kerak
+    }),
+    multiValue: (style) => ({
+      ...style,
+      backgroundColor: `hsl(${getCssVariable("--muted")})`,
+      borderRadius: "var(--radius)",
+    }),
+    multiValueLabel: (style) => ({
+      ...style,
+      color: `hsl(${getCssVariable("--foreground")})`,
+    }),
+    multiValueRemove: (style) => ({
+      ...style,
+      color: `hsl(${getCssVariable("--foreground")})`,
+      "&:hover": {
+        backgroundColor: `hsl(${getCssVariable("--destructive")})`,
+        color: `hsl(${getCssVariable("--destructive-foreground")})`,
+      },
+    }),
+    input: (style) => ({
+      ...style,
+      color: `hsl(${getCssVariable("--foreground")})`,
+    }),
+    menuPortal: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+  };
+
+  return (
+    <form style={{ height: "100%", width: "100% !important" }}>
+      <InputLabel id="aria-label" htmlFor="aria-example-input" sx={{ mb: 1 }}>
+        {props.label}
+      </InputLabel>
+      <Select
+        aria-labelledby="aria-label"
+        inputId="aria-example-input"
+        name="aria-live-color"
+        placeholder={props?.placeholder}
+        classNamePrefix="select"
+        defaultValue={props.value}
+        menuPortalTarget={document.body}
+        isDisabled={props.disabled}
+        isLoading={props.isLoading}
+        isMulti={props.multiple}
+        inputValue={props.search}
+        onInputChange={(e) => props.setSearch && props.setSearch(e)}
+        value={getValue}
+        getOptionValue={props.getValue}
+        getOptionLabel={props.getOptionLabel}
+        filterOption={props.filterOption}
+        onChange={(e) => {
+          if (e === null) {
+            props.onChange(props.multiple ? [] : 0);
+          } else {
+            props.multiple
+              ? props?.onChange(e.map((item: any) => props.getValue(item)))
+              : props?.onChange(props.getValue(e));
+          }
+          if (props.onSelect) {
+            props.onSelect(e);
+          }
+        }}
+        isClearable
+        isSearchable={true}
+        options={props.options}
+        styles={colorStyles}
+      />
+      {props.error && (
+        <FormHelperText error id="my-helper-text">
+          {props.error?.message}
+        </FormHelperText>
+      )}
+    </form>
+  );
+};
+export default memo(ChildAutocomplete);
+
+
+
+import React, { memo, useState } from 'react'
+import { Controller } from 'react-hook-form'
+import ChildAutocomplete from './ChildAutocomplete'
+import GetContainer from '../get-container'
+
+interface IProps {
+  control: any
+  name: string
+  label: any
+  getOptionLabel: (option: any) => string
+  getValue: (option: any) => string
+  filterOption?: (option: any, inputValue: string) => boolean
+  multiple?: boolean
+  error: any
+  disabled?: boolean
+  url: string
+  onSelect?: (data: any) => void
+  params?: any
+  autoWidth?: boolean
+  onlyArray?:boolean
+  onSearchChange?: (search: string) => void
+  getData:(data:any) => any
+  placeholder?:string
+}
+
+function AsyncAutocomplete(props: IProps) {
+  const [search, setSearch] = useState('')
+
+  const isObject = (value: any) => {
+    if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  
+  const value = (data: any) => {
+    if (props.multiple) {
+      if (data && isObject(data?.[0])) {
+        return data?.map((item: any) => props.getValue(item));
+      } else {
+        return data;
+      }
+    } else {
+      if (data && isObject(data)) {
+        return props.getValue(data);
+      } else {
+        return data;
+      }
+    }
+  };
+
+
+
+  return (
+    <GetContainer url={props.url}   params={{ search: search, page: 1, perPage: 10000, ...props.params }} hideLoading>
+      {({ data, isLoading, isFetching }) => {
+          console.log(data);
+          
+        return (
+          <Controller
+            control={props.control}
+            name={props.name}
+            render={({ field: { ref, onChange, ...field } }) => {
+              return (
+                <ChildAutocomplete
+                  options={props.getData(data) || []}
+                  isLoading={isLoading || isFetching}
+                  value={value(field?.value)}
+                  onChange={onChange}
+                  ref={ref}
+                  search={search}
+                  disabled={props.disabled}
+                  setSearch={(e:any) => {
+                    setSearch(e)
+                    props.onSearchChange && props.onSearchChange(e)
+                  }}
+                  filterOption={option => option}
+                  {...props}
+                />
+              )
+            }}
+          />
+        )
+      }}
+    </GetContainer>
+  )
+}
+
+export default memo(AsyncAutocomplete)
+
+
+

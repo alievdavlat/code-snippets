@@ -1,17 +1,14 @@
 // @ts-nocheck
-import React, { memo, useEffect, useMemo } from "react";
+import React, { Dispatch, memo, SetStateAction, useEffect, useMemo } from "react";
 import Select from "react-select";
 import { FormHelperText, InputLabel } from "@mui/material";
 
 interface ChildProps {
-  onChange: (item: any) => void;
+  onChange: Dispatch<SetStateAction<{}>>;
   options: any[];
   value: any;
-  ref: any;
   multiple?: boolean;
-  error: any;
   label: string;
-  isLoading: boolean;
   disabled?: boolean;
   getOptionLabel: (option: any) => string;
   filterOption?: (option: any, inputValue: string) => boolean;
@@ -19,18 +16,13 @@ interface ChildProps {
   search?: string;
   setSearch?: React.Dispatch<React.SetStateAction<string>>;
   onSelect?: (data: any) => void;
-  autoWidth?: boolean;
-  onlyArray?: boolean;
-  placeholder?:string
+  placeholder?: string;
 }
-
-
 
 const ChildAutocomplete = (props: ChildProps) => {
   const getValue = useMemo(() => {
     const isArray = Array.isArray(props?.value);
 
-    if (!props.isLoading) {
       if (props.multiple) {
         return isArray
           ? props.options?.filter((item: any) =>
@@ -42,11 +34,9 @@ const ChildAutocomplete = (props: ChildProps) => {
           ? props.options?.find((item) => props.getValue(item) == props?.value)
           : null;
       }
-    }
   }, [props]);
 
   useEffect(() => {
-    if (!props.isLoading) {
       if (props.multiple) {
         if (!getValue) {
           props.onChange([]);
@@ -56,8 +46,7 @@ const ChildAutocomplete = (props: ChildProps) => {
           props.onChange(null);
         }
       }
-    }
-  }, [props, props.multiple, props.isLoading, getValue]);
+  }, [props, props.multiple, getValue]);
 
   const getCssVariable = (variable: string): string =>
     getComputedStyle(document.documentElement).getPropertyValue(variable);
@@ -137,11 +126,9 @@ const ChildAutocomplete = (props: ChildProps) => {
       zIndex: 9999,
     }),
   };
-  
-
 
   return (
-    <form style={{ height: "100%" , width:'100% !important'}}>
+    <form style={{ height: "100%", width: "100% !important" }}>
       <InputLabel id="aria-label" htmlFor="aria-example-input" sx={{ mb: 1 }}>
         {props.label}
       </InputLabel>

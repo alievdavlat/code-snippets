@@ -1,5 +1,5 @@
 "use client";
-import React, {  useState } from "react";
+import React, { useState } from "react";
 
 import {
   SiPython,
@@ -47,10 +47,6 @@ import {
   SiRing,
   SiSqlite,
 } from "react-icons/si";
-
-import { Control, Controller } from "react-hook-form";
-import useQueryParams from "@/hooks/useQueryParams";
-
 
 
 const programmingLanguages = [
@@ -282,41 +278,41 @@ const programmingLanguages = [
 
 interface LanguageDropDownProps {
   name: string;
-  control: Control;
   placeholder: string;
+  value:any,
+  onchange: (e: any) => void
 }
-const LanguageDropDown = ({ control, name, placeholder }: LanguageDropDownProps) => {
+const LanguageDropDown = ({
+  name,
+  placeholder,
+  onchange,
+   value
+}: LanguageDropDownProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const query = useQueryParams()
   const filteredLanguages = programmingLanguages.filter((lang) =>
     lang.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => (
+
         <div className="relative w-full">
           <div
             className="border border-slate-400 hover:border-primary active:border-primary rounded-lg p-2 bg-white dark:bg-secondary cursor-pointer"
-            onClick={() => setIsOpen(!isOpen)}
-          >
+            onClick={() => setIsOpen(!isOpen)}>
             <input
               type="text"
               className="w-full p-2 bg-transparent border-none outline-none dark:text-white text-slate-400"
               placeholder={placeholder}
-              value={query.has('id') ? field.value : searchTerm}
+              value={value || searchTerm}
               onChange={(e) => {
-                field.onChange(e.target.value)
-                setSearchTerm(e.target.value)
-                }}
+                setSearchTerm(e.target.value);
+                
+              }}
               onClick={(e) => {
                 e.stopPropagation();
                 setIsOpen(true);
               }}
-              // {...field}
             />
           </div>
           {isOpen && (
@@ -331,11 +327,10 @@ const LanguageDropDown = ({ control, name, placeholder }: LanguageDropDownProps)
                     key={lang.id}
                     className="flex items-center p-2 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600"
                     onClick={() => {
-                      field.onChange(lang.name);
                       setSearchTerm(lang.name);
                       setIsOpen(false);
-                    }}
-                  >
+                      onchange(lang.name)
+                    }}>
                     {lang.icon}
                     <span className="ml-2 dark:text-white text-slate-400">
                       {lang.name}
@@ -346,8 +341,6 @@ const LanguageDropDown = ({ control, name, placeholder }: LanguageDropDownProps)
             </div>
           )}
         </div>
-      )}
-    />
   );
 };
 

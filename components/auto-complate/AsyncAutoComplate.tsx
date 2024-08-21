@@ -1,40 +1,34 @@
-import React, { memo, useState } from 'react'
-import { Controller } from 'react-hook-form'
-import ChildAutocomplete from './ChildAutocomplete'
-import GetContainer from '../get-container'
+import React, { Dispatch, memo, SetStateAction, useState } from "react";
+import ChildAutocomplete from "./ChildAutocomplete";
 
 interface IProps {
-  control: any
-  name: string
-  label: any
-  getOptionLabel: (option: any) => string
-  getValue: (option: any) => string
-  filterOption?: (option: any, inputValue: string) => boolean
-  multiple?: boolean
-  error: any
-  disabled?: boolean
-  url: string
-  onSelect?: (data: any) => void
-  params?: any
-  autoWidth?: boolean
-  onlyArray?:boolean
-  onSearchChange?: (search: string) => void
-  getData:(data:any) => any
-  placeholder?:string
+  name: string;
+  label: any;
+  getOptionLabel: (option: any) => string;
+  getValue: (option: any) => string;
+  filterOption?: (option: any, inputValue: string) => boolean;
+  multiple?: boolean;
+  disabled?: boolean;
+  url: string;
+  onSelect?: (data: any) => void;
+  getData: (data: any) => any;
+  placeholder?: string;
+  options:any[]
+  onChange:Dispatch<SetStateAction<{}>>
+  onChangevalue?:any
 }
 
 function AsyncAutocomplete(props: IProps) {
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState("");
 
   const isObject = (value: any) => {
-    if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
-      return true
+    if (typeof value === "object" && !Array.isArray(value) && value !== null) {
+      return true;
     } else {
-      return false
+      return false;
     }
-  }
+  };
 
-  
   const value = (data: any) => {
     if (props.multiple) {
       if (data && isObject(data?.[0])) {
@@ -51,41 +45,26 @@ function AsyncAutocomplete(props: IProps) {
     }
   };
 
-
-
   return (
-    <GetContainer url={props.url}   params={{ search: search, page: 1, perPage: 10000, ...props.params }} hideLoading>
-      {({ data, isLoading, isFetching }) => {
-          console.log(data);
-          
-        return (
-          <Controller
-            control={props.control}
-            name={props.name}
-            render={({ field: { ref, onChange, ...field } }) => {
-              return (
-                <ChildAutocomplete
-                  options={props.getData(data) || []}
-                  isLoading={isLoading || isFetching}
-                  value={value(field?.value)}
-                  onChange={onChange}
-                  ref={ref}
-                  search={search}
-                  disabled={props.disabled}
-                  setSearch={(e:any) => {
-                    setSearch(e)
-                    props.onSearchChange && props.onSearchChange(e)
-                  }}
-                  filterOption={option => option}
-                  {...props}
-                />
-              )
-            }}
-          />
-        )
+    <ChildAutocomplete
+      options={props.options}
+      value={value(props.onChangevalue)}
+      onChange={props.onChange}
+      search={search}
+      disabled={props.disabled}
+      setSearch={(e: any) => {
+        setSearch(e);
+      
       }}
-    </GetContainer>
-  )
+      filterOption={(option) => option}
+      getOptionLabel={props.getOptionLabel}
+      getValue={props.getValue}
+      multiple={props.multiple}
+      label={props.label}
+      onSelect={props.onSelect}
+      placeholder={props.placeholder}
+    />
+  );
 }
 
-export default memo(AsyncAutocomplete)
+export default memo(AsyncAutocomplete);

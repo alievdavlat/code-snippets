@@ -1,42 +1,30 @@
 import React from "react";
-import { Control, Controller, FieldErrors, FieldError } from "react-hook-form";
-import { TextFieldProps } from "@mui/material/TextField";
 
 type TextAreaFieldProps = {
   name: string;
   label?: string;
   placeholder: string;
-  control?: Control;
-  error?: FieldErrors | FieldError;
-  inputProps?: TextFieldProps;
   type?: string;
-  icon?: string;
   rows?: number;
   className?: string;
-  onMouseEnter?:() => any
-  onMouseLeave?:() => any
+  value:any
+  onchange?: (e:any) => void
 };
 const ControllerTextArea = (props: TextAreaFieldProps) => {
-  const {  name, placeholder, control, className, rows } = props;
+  const {  name, placeholder, className, rows , value, onchange} = props;
 
   return (
-    <Controller
-      key={name}
-      name={name}
-      control={control}
-      render={({ field }) => (
+
         <textarea
-          onMouseEnter={props.onMouseEnter}
-          onMouseLeave={props.onMouseLeave}
+          name={name}
           placeholder={placeholder.toString()}
-          defaultValue={""}
-          value={field.value}
-          onChange={(e: any) => field.onChange(e.target.value)}
+          value={value}
+          onChange={onchange}
           rows={rows}
+          required
           className={className}
         />
-      )}
-    />
+  
   );
 };
 

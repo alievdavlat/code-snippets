@@ -1,6 +1,4 @@
 "use client"
-import ErrorData from "@/components/ErrorData";
-import GetContainer from "@/components/get-container";
 import Loader from "@/components/loader";
 import Tags from "@/components/Tags";
 import { GlobalFilter } from "@/context/TableFilterContext";
@@ -13,9 +11,12 @@ import "swiper/css/free-mode";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
-import { FreeMode, Pagination, Navigation, Autoplay } from "swiper/modules";
+import { FreeMode, Navigation } from "swiper/modules";
 import NoteItem from "@/components/note/NoteItem";
 import NOFavorites from "@/components/NOFavorites";
+import { Id } from "@/convex/_generated/dataModel";
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
 
 interface tagProps {
   id: string;
@@ -26,49 +27,44 @@ interface tagProps {
 }
 
 interface NoteItemProps {
-  id: string;
-  title: string;
-  isFavorite: boolean;
+  _id: Id<"snippets">;
+  _creationTime: number;
+  isFavorite?: boolean | undefined;
+  isTrash?: boolean | undefined;
+  tags: string[];
   clerkUserId: string;
-  tags: tagProps[];
+  title: string;
   description: string;
   code: string;
   language: string;
-  isTrash: boolean;
-  createdAt: string;
-  updatedAt: string;
+  libery: string;
 }
 
 const Favoritepage = () => {
-  const { tags } = useContext(GlobalFilter);
+  const { tags , globalFilter} = useContext(GlobalFilter);
 
+  const snippet = useQuery(api.snippets.getFavriteSnippets , {
+    search:globalFilter,
+    tag:tags,
+  });
+
+
+  if (snippet === undefined) {
+    return <Loader />;
+  }
+
+
+
+  if (snippet?.length <= 0) {
+    return <NOFavorites />;
+  }
 
   return (
     <div className="mt-6">
       <div className="flex gap-2">
         <div className={`w-full`}>
           <Tags />
-          <GetContainer
-            url={"/snippets"}
-            hideLoading
-            params={{
-              // search: globalFilter,
-              tags,
-            }}>
-            {({ data, isError, isLoading, refetch }) => {
-              if (isLoading) {
-                return <Loader />;
-              }
 
-              if (isError) {
-                return <ErrorData />;
-              }
-
-              if (data?.data?.filter((note: NoteItemProps) => note?.isFavorite === true).length <= 0) {
-                return <NOFavorites />;
-              }
-
-              return (
                 <Swiper
                   slidesPerView={3}
                   spaceBetween={30}
@@ -110,20 +106,14 @@ const Favoritepage = () => {
                   }}
                   modules={[  Navigation, FreeMode]}
                   className="mt-10">
-                  {data?.data.length > 0 &&
-                    data?.data
-                      .filter(
-                        (note: NoteItemProps) => note?.isFavorite === true
-                      )
-                      .map((item: NoteItemProps) => (
-                        <SwiperSlide key={item?.id}>
-                          <NoteItem {...item} refetch={refetch}/>
+                  {snippet.length > 0 &&
+                      snippet.map((item: NoteItemProps) => (
+                        <SwiperSlide key={item?._id}>
+                          <NoteItem {...item}  deleteWork={false}/>
                         </SwiperSlide>
                       ))}
                 </Swiper>
-              );
-            }}
-          </GetContainer>
+
         </div>
       </div>
     </div>

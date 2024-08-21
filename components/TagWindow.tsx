@@ -25,133 +25,116 @@ import {
   ModalTrigger,
   useModal,
 } from "./ui/animated-modal";
-import ControllerInput from "./controlled/ControllerInput";
-import Form from "./form";
-import * as yup from "yup";
-import { useUser } from "@clerk/nextjs";
-import GetContainer from "./get-container";
-import ErrorData from "./ErrorData";
+import { useUser } from "@clerk/clerk-react";
 import Loader from "./loader";
-import NoData from "./NoData";
+import ControllerInput from "./controlled/ControllerInput";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { toast } from "sonner";
 
 interface tagProps {
-  id: string;
+  _id: Id<"tags">;
+  _creationTime: number;
   name: string;
   clerkUserId: string;
-  createdAt: string;
-  updatedAt: string;
 }
-
-const validationSchema = yup.object().shape<any>({
-  name: yup.string().required("Toldirilishi Shart Bolgan Maydon"),
-});
-
 
 const TagWindow = () => {
   const { user } = useUser();
-  const initialValues: any = {
-    name: "",
-    clerkUserId: user?.id,
-  };
-
+  const [tag, setTag] = React.useState('')
   const { setOpen } = useModal();
 
+  const tags = useQuery(api.tags.getAllTags);
+
+  const handleTagChange = (e:any) => {
+    const {value} = e.target
+    setTag(value)
+  }
+
+  const createSnippet = useMutation(api.tags.createTags);
+
+  const onCreateTag = () => {
+    if (user?.id) {   
+      const promise = createSnippet({
+        name: tag,
+        clerkUserId:user?.id
+      })
+      toast.promise(promise, {
+        loading: "creating a new tag...",
+        success: "new tag has been created",
+        error:"somthing went error while creating tag"
+      });
+    }
+
+  };
+
+  if (tags === undefined) {
+    return <Loader />;
+  }
+
+
+
   return (
-    <Form
-      url={"/tags"}
-      validationSchema={validationSchema}
-      initialValues={initialValues}>
-      {({ handleFinish, createInfo, form }) => {
-        const {
-          control,
-          handleSubmit,
-          formState: { errors },
-        } = form;
+    <div className="w-full h-full">
+      <div className="flex justify-between items-center  mb-3">
+        <div className="flex  items-center gap-2">
+          <StyleOutlined />
+          <span className="text-lg font-bold">Tags</span>
+        </div>
 
-        return (
-          <div className="w-full h-full">
-            <div className="flex justify-between items-center  mb-3">
-              <div className="flex  items-center gap-2">
-                <StyleOutlined />
-                <span className="text-lg font-bold">Tags</span>
-              </div>
-
-              <Modal>
-                <ModalTrigger className="bg-primary  text-white flex justify-center group/modal-btn z-50">
-                  <Button className="text-white">
-                    <AddOutlined sx={{ fontSize: 18 }} /> Add Tag
-                  </Button>
-                </ModalTrigger>
-                <ModalBody className="bg-secondary">
-                  <ModalContent>
-                    <h2 className="text-lg font-bold dark:text-slate-400 text-slate-500 mb-2">
-                      Add New Tag
-                    </h2>
-                    <ControllerInput
-                      name="name"
-                      placeholder="tags..."
-                      control={control}
-                      type="text"
-                      label=""
-                      error={errors.name}
-                    />
-                  </ModalContent>
-                  <ModalFooter className="gap-4">
-                    <button
-                      className="z-10 px-3 py-1 bg-gray-200 text-black dark:bg-secondary  dark:text-white   rounded-md text-sm w-28"
-                      onClick={handleSubmit(async (data: any) => {
-                        await handleFinish(data);
-                        setOpen(false);
-                      })}>
-                      Save
-                    </button>
-                  </ModalFooter>
-                </ModalBody>
-              </Modal>
-            </div>
-
-            <Command className="rounded-lg  shadow-md w-full h-full bg-transparent">
-              <CommandInput
-                placeholder="Search Tags..."
-                className="text-slate-300"
+        <Modal>
+          <ModalTrigger className="bg-primary  text-white flex justify-center group/modal-btn z-50">
+            <Button className="text-white">
+              <AddOutlined sx={{ fontSize: 18 }} /> Add Tag
+            </Button>
+          </ModalTrigger>
+          <ModalBody className="bg-secondary">
+            <ModalContent>
+              <h2 className="text-lg font-bold dark:text-slate-400 text-slate-500 mb-2">
+                Add New Tag
+              </h2>
+              <ControllerInput
+                name="name"
+                placeholder="tags..."
+                type="text"
+                label=""
+                value={tag} 
+                onchange={handleTagChange}
               />
-              <CommandList>
-                <CommandEmpty>No results found.</CommandEmpty>
-                <CommandGroup heading="Suggestions">
-                  <GetContainer url={"/tags"} hideLoading>
-                    {({ data, isError, isLoading, isFetching }) => {
-                           if (isLoading) {
-                            return <Loader />;
-                          }
-                
-                          if (isError) {
-                            return <ErrorData />;
-                          }
-                
-                          if (data?.data?.length <= 0) {
-                            return <NoData />;
-                          }
+            </ModalContent>
+            <ModalFooter className="gap-4">
+              <button
+                className="z-10 px-3 py-1 bg-gray-200 text-black dark:bg-secondary  dark:text-white   rounded-md text-sm w-28"
+                onClick={() => {
+                  setOpen(false)
+                  onCreateTag()
+                }}>
+                Save
+              </button>
+            </ModalFooter>
+          </ModalBody>
+        </Modal>
+      </div>
 
-                      return (
-                        <div className="overflow-x-auto flex items-center flex-wrap w-[90%]">
-                          {data?.data?.length > 0 &&
-                            data?.data.map((item: tagProps, index: number) => (
-                              <CommandItem key={item.id}>
-                                <SingleTag title={item.name} id={item.id} />
-                              </CommandItem>
-                            ))}
-                        </div>
-                      );
-                    }}
-                  </GetContainer>
-                </CommandGroup>
-                <CommandSeparator />
-              </CommandList>
-            </Command>
-          </div>
-        );
-      }}
-    </Form>
+      <Command className="rounded-lg  shadow-md w-full h-full bg-transparent">
+        <CommandInput placeholder="Search Tags..." className="text-slate-300" />
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup heading="Suggestions" style={{width:'100%'}}>
+            <div className="overflow-x-auto flex items-center flex-wrap w-[90%]">
+              {tags?.length > 0 &&
+                tags.map((item: tagProps, index: any) => (
+                  <CommandItem key={item._id}>
+                    <SingleTag title={item.name} id={index + 1} />
+                  </CommandItem>
+                ))}
+            </div>
+          </CommandGroup>
+          <CommandSeparator />
+        </CommandList>
+      </Command>
+    </div>
   );
 };
 
@@ -159,7 +142,7 @@ export default TagWindow;
 
 const SingleTag = ({ title, id }: { title: string; id: string }) => {
   return (
-    <div className="dark:bg-slate-500 bg-slate-600 p-2 rounded-lg flex gap-3 items-center justify-between px-4 w-full ">
+    <div className="dark:bg-slate-500 bg-slate-600 p-2 rounded-lg flex gap-3 items-center justify-between px-4 w-full">
       <div className="flex gap-3 items-center">
         <DragIndicatorOutlined className="text-slate-400 cursor-pointer" />
         <div className="w-2 h-2  bg-primary rounded-full"></div>

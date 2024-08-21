@@ -7,8 +7,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { usePathname } from "next/navigation";
 import ErrorData from "./ErrorData";
 import Loader from "./loader";
-import GetContainer from "./get-container";
-import { SignOutButton, useUser } from "@clerk/nextjs";
+import { SignOutButton, useUser } from "@clerk/clerk-react";
 import {
   SiPython,
   SiJavascript,
@@ -55,6 +54,9 @@ import {
   SiRing,
   SiSqlite,
 } from "react-icons/si";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import NoData from "./NoData";
 
 interface ISidebarItemProps {
   title: string;
@@ -304,81 +306,62 @@ const lang = [
 const SidebarItems = ({ title, link, icon, index, id }: ISidebarItemProps) => {
   const p = usePathname();
   return (
-    <li
-    className={`group ${
-      link === p ? "bg-primary" : "hover:bg-primary"
-    }`}>
-    <Link
-      href={link}
-      className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
-        link === p
-          ? "text-white"
-          : "dark:text-slate-400 text-slate-700 group-hover:text-white"
-      }`}>
-      <span
-        className={`inline-flex items-center justify-center h-12 w-12 text-lg ${
+    <li className={`group ${link === p ? "bg-primary" : "hover:bg-primary"}`}>
+      <Link
+        href={link}
+        className={`flex flex-row items-center h-12 transform hover:translate-x-2 transition-transform ease-in duration-200 ${
           link === p
             ? "text-white"
             : "dark:text-slate-400 text-slate-700 group-hover:text-white"
         }`}>
-        {icon}
-      </span>
-      <span className="text-md font-medium">{title}</span>
-    </Link>
-  </li>
+        <span
+          className={`inline-flex items-center justify-center h-12 w-12 text-lg ${
+            link === p
+              ? "text-white"
+              : "dark:text-slate-400 text-slate-700 group-hover:text-white"
+          }`}>
+          {icon}
+        </span>
+        <span className="text-md font-medium">{title}</span>
+      </Link>
+    </li>
   );
 };
 
 const LanguageItems = () => {
   const { user } = useUser();
+  const language = useQuery(api.snippets.getLanguage);
+
+  if (language === undefined) {
+    return <Loader />;
+  }
+
+  if (language?.length <= 0) {
+    return <h2 className="p-2 dark:text-slate-400 text-slate-700 ">language found : {language?.length}</h2>;
+  }
   return (
     <>
       {user?.id && (
-        <GetContainer
-          url={"/languages"}
-          hideLoading
-          params={{
-            clerkId: user?.id,
-          }}>
-          {({ data, isError, isLoading, refetch }) => {
-            console.log(data?.data);
+        <div className="mt-12 text-sm px-3">
+          <div className="font-bold dark:text-slate-400 text-slate-700">
+            Languages
+          </div>
 
-            if (isLoading) {
-              return <Loader />;
-            }
-
-            if (isError) {
-              return <ErrorData />;
-            }
-
-            if (data?.data?.length <= 0) {
-              return <h2></h2>;
-            }
-
-            return (
-              <div className="mt-12 text-sm px-3">
-                <div className="font-bold dark:text-slate-400 text-slate-700">
-                  Languages
+          <div className="mt-5 ml-2 dark:text-slate-400 text-slate-700 flex flex-col gap-4">
+            {language.map((item: any) => (
+              <div className="flex justify-between" key={item?.name}>
+                <div className="flex gap-1 items-center">
+                  {lang.map((l: any) =>
+                    l?.name === item?.name ? l?.icon : ""
+                  )}{" "}
+                  {"  "}
+                  {item?.name}
                 </div>
-
-                <div className="mt-5 ml-2 dark:text-slate-400 text-slate-700 flex flex-col gap-4">
-                  {data?.data.map((item: any) => (
-                    <div className="flex justify-between" key={item?.name}>
-                      <div className="flex gap-1 items-center">
-                        {lang.map((l: any) =>
-                          l?.name === item?.name ? l?.icon : ""
-                        )}{" "}
-                        {"  "}
-                        {item?.name}
-                      </div>
-                      <span className="font-bold">{item?.count}</span>
-                    </div>
-                  ))}
-                </div>
+                <span className="font-bold">{item?.count}</span>
               </div>
-            );
-          }}
-        </GetContainer>
+            ))}
+          </div>
+        </div>
       )}
     </>
   );

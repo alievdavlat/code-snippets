@@ -3,11 +3,11 @@ import { Raleway } from "next/font/google";
 import "./globals.css";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ModalProvider } from "@/context/ModalContext";
 import QueryProvider from "@/components/providers/query-provider";
 import connect from "@/lib/db";
+import { ConvexClientProvider } from "@/components/providers/convexProvider";
 
 const raleway = Raleway({ subsets: ["latin"] });
 
@@ -28,7 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ConvexClientProvider>
+
       <html lang="en">
         <head>
           <link
@@ -44,6 +45,7 @@ export default function RootLayout({
               attribute="class"
               defaultTheme="system"
               enableSystem
+              storageKey="code-theme"
               disableTransitionOnChange>
               <div className="inset-0 w-full h-full absolute">
                 <BackgroundBeams />
@@ -57,6 +59,6 @@ export default function RootLayout({
           </QueryProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </ConvexClientProvider>
   );
 }

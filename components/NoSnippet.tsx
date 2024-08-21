@@ -18,7 +18,7 @@ const NoSnippet = () => {
         It looks like there are no snippets
       </p>
 
-      <Button variant={'outline'} className="p-2 cursor-pointer z-50" onClick={toggle}>
+      <Button variant={'outline'} className="p-2 cursor-pointer z-40" onClick={toggle}>
       <AddOutlined sx={{ fontSize: 18 }} /> Create Snippet
       </Button>
     </div>
