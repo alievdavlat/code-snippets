@@ -386,7 +386,7 @@ const NoteItem = ({
         </div>
 
         {/* tags */}
-        <div className="text-slate-400 text-[15px] mx-4 flex-wrap flex gap-1 mt-4">
+        <div className="text-slate-400 text-[15px] mx-4 flex-wrap flex gap-1 mt-4 overflow-x-auto">
           {tags.map((tag) => (
             <span
               className="border border-slate-500 p-1 rounded-md px-2"
@@ -401,7 +401,7 @@ const NoteItem = ({
           <CodeBlocks language={language || "Javascript"} code={code || ""} />
         </div>
         {/* descr  */}
-        <div className="dark:text-slate-300 text-slate-600 text-[13px] mt-4 mx-4">
+        <div className="dark:text-slate-300 text-slate-600 text-[13px] mt-4 mx-4 overflow-y-auto">
           {description}
         </div>
 
